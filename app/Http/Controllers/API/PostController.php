@@ -8,17 +8,26 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Validator;
 
-
+/**
+ * Class PostController
+ * @package App\Http\Controllers\API
+ */
 class PostController extends Controller
 {
 
+    /**
+     * @var PostService $postService
+     */
     protected $postService;
 
+    /**
+     * PostController constructor.
+     * @param PostService $postService
+     */
     public function __construct(PostService $postService)
     {
         $this->postService = $postService;
     }
-
 
     /**
      * @param Request $request
@@ -26,6 +35,8 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
-        return response()->json($this->postService->create($request));
+        $response = $this->postService->create($request);
+
+        return response()->json($response);
     }
 }

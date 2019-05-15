@@ -2,9 +2,15 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
+use Validator;
 
-class LoginRequest extends FormRequest
+/**
+ * Class LoginRequest
+ * @package App\Http\Requests
+ */
+class LoginRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,5 +32,16 @@ class LoginRequest extends FormRequest
         return [
             'login' => 'required|unique:users'
         ];
+    }
+
+    /**
+     * @param Request $request
+     * @return mixed
+     */
+    public function validateLogin(Request $request)
+    {
+        $validate =  Validator::make($request->all(), $this->rules());
+
+        return $validate;
     }
 }
