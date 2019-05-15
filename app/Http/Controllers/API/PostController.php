@@ -35,8 +35,8 @@ class PostController extends Controller
      */
     public function create(Request $request)
     {
-        $response = $this->postService->create($request);
+        list($response, $code) = $this->postService->create($request);
 
-        return response()->json($response);
+        return response()->json($response, $code);
     }
 }

@@ -20,4 +20,9 @@ class User extends Authenticatable
     ];
 
     protected $table = 'users';
+
+    /**
+     * @var bool
+     */
+    public $timestamps = false;
 }

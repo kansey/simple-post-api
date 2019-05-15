@@ -30,7 +30,7 @@ class LoginRequest
     public function rules()
     {
         return [
-            'login' => 'required|unique:users'
+            'login' => 'required||string|min:5|max:20'
         ];
     }
 
