@@ -66,7 +66,7 @@ class PostService
      * @param Request $request
      * @return array
      */
-    public function create(Request $request)
+    public function create(Request $request): array
     {
         $validatePost = $this->postRequest->validatePost($request);
         $validateLogin = $this->loginRequest->validateLogin($request);
