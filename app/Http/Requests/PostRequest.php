@@ -12,6 +12,9 @@ use Validator;
  */
 class PostRequest
 {
+
+    const EMPTY_DATA_MESSAGE = 'Request returned empty data';
+
     /**
      * Determine if the user is authorized to make this request.
      *

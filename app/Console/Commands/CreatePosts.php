@@ -43,6 +43,11 @@ class CreatePosts extends Command
     protected $post;
 
     /**
+     * @var Client $guzzle
+     */
+    protected $guzzle;
+
+    /**
      * Create a new command instance.
      *
      * @return void
@@ -50,6 +55,7 @@ class CreatePosts extends Command
     public function __construct()
     {
         parent::__construct();
+        $this->guzzle = new Client([]);
     }
 
     /**
@@ -139,21 +145,21 @@ class CreatePosts extends Command
     /**
      * @param $post
      */
-    protected function sendPost($post)
+    protected function sendPost($post, $index)
     {
-        $client = new Client();
-
-        $response = $client->post('http://post.dev.ylab.local/api/create', [
+        $response = $this->guzzle->post('http://post.dev.ylab.local/api/create', [
             \GuzzleHttp\RequestOptions::JSON => $post,
-            \GuzzleHttp\RequestOptions::DELAY => 750
+            \GuzzleHttp\RequestOptions::DELAY => 1000
         ]);
+
+        echo $index.PHP_EOL;
     }
 
     /**
-     *
+     * @return bool
      */
     protected function savePosts()
     {
-        array_map([$this, 'sendPost'], $this->post);
+        return array_walk($this->post, [$this, 'sendPost']);
     }
 }

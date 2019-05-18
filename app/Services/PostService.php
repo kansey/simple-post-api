@@ -40,6 +40,8 @@ class PostService
      */
     protected $code;
 
+    protected $queryCache;
+
     /**
      * PostService constructor.
      * @param Post $post
@@ -47,19 +49,22 @@ class PostService
      * @param LoginRequest $loginRequest
      * @param User $user
      * @param ResponseCode $code
+     * @param QueryCacheService $cacheService
      */
     public function __construct(
         Post $post,
         PostRequest $postRequest,
         LoginRequest $loginRequest,
         User $user,
-        ResponseCode $code
+        ResponseCode $code,
+        QueryCacheService $cacheService
     ) {
         $this->post = $post;
         $this->postRequest = $postRequest;
         $this->loginRequest = $loginRequest;
         $this->user = $user;
         $this->code = $code;
+        $this->queryCache = $cacheService;
     }
 
     /**
@@ -89,5 +94,21 @@ class PostService
            ]),
            $this->code->ok
        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getIpList(): array
+    {
+        $query = $this->queryCache->getIp();
+
+        return is_array($query) ? [
+            $query,
+            $this->code->ok
+        ] : [
+            PostRequest::EMPTY_DATA_MESSAGE,
+            $this->code->unprocessableEntity
+        ];
     }
 }

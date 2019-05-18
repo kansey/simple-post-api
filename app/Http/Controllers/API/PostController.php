@@ -39,4 +39,15 @@ class PostController extends Controller
 
         return response()->json($response, $code);
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function ip(Request $request)
+    {
+        list($response, $code) = $this->postService->getIpList($request);
+
+        return response()->json($response, $code);
+    }
 }
