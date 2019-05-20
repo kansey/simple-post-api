@@ -10,9 +10,11 @@ use Validator;
  * Class PostRequest
  * @package App\Http\Requests
  */
-class PostRequest
+class PostRequest implements RequestApiInterface
 {
-
+    /**
+     * Message for response errors and empty data
+     */
     const EMPTY_DATA_MESSAGE = 'Request returned empty data';
 
     /**
@@ -43,7 +45,7 @@ class PostRequest
      * @param Request $request
      * @return mixed
      */
-    public function validatePost(Request $request)
+    public function validate(Request $request)
     {
         $validate =  Validator::make($request->all(), $this->rules());
 

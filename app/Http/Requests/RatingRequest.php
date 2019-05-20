@@ -9,7 +9,7 @@ use Validator;
  * Class RatingRequest
  * @package App\Http\Requests
  */
-class RatingRequest
+class RatingRequest implements RequestApiInterface
 {
     const MESSAGE = 'Failed to update data';
 
@@ -40,7 +40,7 @@ class RatingRequest
      * @param Request $request
      * @return mixed
      */
-    public function validateRating(Request $request)
+    public function validate(Request $request)
     {
         $validate =  Validator::make($request->all(), $this->rules());
 

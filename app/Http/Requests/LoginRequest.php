@@ -10,7 +10,7 @@ use Validator;
  * Class LoginRequest
  * @package App\Http\Requests
  */
-class LoginRequest
+class LoginRequest implements RequestApiInterface
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -38,7 +38,7 @@ class LoginRequest
      * @param Request $request
      * @return mixed
      */
-    public function validateLogin(Request $request)
+    public function validate(Request $request)
     {
         $validate =  Validator::make($request->all(), $this->rules());
 

@@ -91,8 +91,8 @@ class PostService
      */
     public function create(Request $request): array
     {
-        $validatePost = $this->postRequest->validatePost($request);
-        $validateLogin = $this->loginRequest->validateLogin($request);
+        $validatePost = $this->postRequest->validate($request);
+        $validateLogin = $this->loginRequest->validate($request);
 
         if ($validatePost->fails() || $validateLogin->fails()) {
             return [
@@ -139,7 +139,7 @@ class PostService
         /**
          * @var Validator $validate
          */
-        $validate = $this->ratingRequest->validateRating($request);
+        $validate = $this->ratingRequest->validate($request);
 
         if ($validate->fails()) {
             return [
