@@ -148,8 +148,7 @@ class CreatePosts extends Command
     protected function sendPost($post, $index)
     {
         $response = $this->guzzle->post('http://post.dev.ylab.local/api/create', [
-            \GuzzleHttp\RequestOptions::JSON => $post,
-            \GuzzleHttp\RequestOptions::DELAY => 1000
+            \GuzzleHttp\RequestOptions::JSON => $post
         ]);
 
         echo $index.PHP_EOL;

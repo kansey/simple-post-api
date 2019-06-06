@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Class UserRepository
@@ -11,9 +12,10 @@ use App\User;
 class UserRepository
 {
     /**
-     * @var User
+     * @var User $user
      */
     protected $user;
+
     /**
      * UserRepository constructor.
      * @param User $user
@@ -41,5 +43,17 @@ class UserRepository
         }
 
         return $query->get();
+    }
+
+
+    /**
+     * @param array $params
+     * @return mixed
+     */
+    public function firstOrCreate($params = array())
+    {
+        return DB::transaction(function () use ($params) {
+            return $this->user->firstOrCreate($params);
+        });
     }
 }

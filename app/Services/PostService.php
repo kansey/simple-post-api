@@ -6,8 +6,9 @@ use App\Http\Requests\LoginRequest;
 use App\Http\Requests\PostRequest;
 use App\Http\Requests\RatingRequest;
 use App\Http\Response\ResponseCode;
-use App\Post;
 use App\Rating;
+use App\Repositories\PostRepository;
+use App\Repositories\UserRepository;
 use App\User;
 use Illuminate\Http\Request;
 
@@ -18,9 +19,9 @@ use Illuminate\Http\Request;
 class PostService
 {
     /**
-     * @var Post $post
+     * @var PostRepository $postRepository
      */
-    protected  $post;
+    protected  $postRepository;
 
     /**
      * @var PostRequest $postRequest
@@ -35,7 +36,7 @@ class PostService
     /**
      * @var User $user
      */
-    protected $user;
+    protected $userRepository;
 
     /**
      * @var ResponseCode $code
@@ -52,34 +53,37 @@ class PostService
      */
     protected $ratingRequest;
 
+    /**
+     * @var Rating $rating
+     */
     protected $rating;
 
-    /**
+    /***
      * PostService constructor.
-     * @param Post $post
+     * @param PostRepository $postRepository
      * @param PostRequest $postRequest
      * @param LoginRequest $loginRequest
      * @param RatingRequest $ratingRequest
-     * @param User $user
+     * @param UserRepository $userRepository
      * @param ResponseCode $code
      * @param QueryCacheService $cacheService
      * @param Rating $rating
      */
     public function __construct(
-        Post $post,
+        PostRepository $postRepository,
         PostRequest $postRequest,
         LoginRequest $loginRequest,
         RatingRequest $ratingRequest,
-        User $user,
+        UserRepository $userRepository,
         ResponseCode $code,
         QueryCacheService $cacheService,
         Rating $rating
     ) {
-        $this->post = $post;
+        $this->postRepository = $postRepository;
         $this->postRequest = $postRequest;
         $this->loginRequest = $loginRequest;
         $this->ratingRequest = $ratingRequest;
-        $this->user = $user;
+        $this->userRepository = $userRepository;
         $this->code = $code;
         $this->queryCache = $cacheService;
         $this->rating = $rating;
@@ -101,17 +105,26 @@ class PostService
             ];
         }
 
-        $user = $this->user->firstOrCreate(['login' => $request->login]);
+        try {
+            $user = $this->userRepository->firstOrCreate(['login' => $request->login]);
+            $post = $this->postRepository->firstOrCreate([
+                'title' => $request->title,
+                'content' => $request->content,
+                'user_id' => $user->id,
+                'author_ip' => $request->author_ip
+            ]);
 
-       return [
-           $this->post->firstOrCreate([
-               'title' => $request->title,
-               'content' => $request->content,
-               'user_id' => $user->id,
-               'author_ip' => $request->author_ip
-           ]),
-           $this->code->ok
-       ];
+            return [
+                $post,
+                $this->code->ok
+            ];
+        }
+        catch (\Exception $exception) {
+            return [
+                $exception,
+                $this->code->unprocessableEntity
+            ];
+        }
     }
 
     /**
