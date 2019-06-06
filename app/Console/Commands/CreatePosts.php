@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Repositories\UserRepository;
 use Illuminate\Console\Command;
 use phpDocumentor\Reflection\Types\Integer;
 use GuzzleHttp\Exception\GuzzleException;
@@ -13,6 +14,13 @@ use GuzzleHttp\Client;
  */
 class CreatePosts extends Command
 {
+    /**
+     *  Count rows for table posts
+     */
+    const POST_COUNT = 200000;
+
+    const IP_COUNT = 50;
+
     /**
      * The name and signature of the console command.
      *
@@ -28,9 +36,9 @@ class CreatePosts extends Command
     protected $description = 'Command description';
 
     /**
-     * @var $authors array
+     * @var $users
      */
-    protected $authors;
+    protected $users;
 
     /**
      * @var $listIp array
@@ -48,14 +56,20 @@ class CreatePosts extends Command
     protected $guzzle;
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
+     * @var UserRepository $userRepository
      */
-    public function __construct()
+    protected $userRepository;
+
+    /**
+     * CreatePosts constructor.
+     * @param UserRepository $userRepository
+     */
+    public function __construct(UserRepository $userRepository)
     {
         parent::__construct();
         $this->guzzle = new Client([]);
+        $this->userRepository = $userRepository;
+        $this->users = $this->userRepository->find([]);
     }
 
     /**
@@ -67,19 +81,6 @@ class CreatePosts extends Command
     {
         $this->build();
         $this->savePosts();
-    }
-
-    /**
-     * @return bool
-     */
-    protected function createAuthors()
-    {
-        for ($i = 0; $i < 100; $i++) {
-            $login = $this->generateString(5);
-            $this->authors[] = $login;
-        }
-
-        return true;
     }
 
     /**
@@ -105,7 +106,7 @@ class CreatePosts extends Command
      */
     protected function generateIp()
     {
-        for ($i = 0; $i < 50; $i++) {
+        for ($i = 0; $i < CreatePosts::IP_COUNT; $i++) {
             $this->listIp[] = long2ip(mt_rand());
         }
 
@@ -117,10 +118,10 @@ class CreatePosts extends Command
      */
     protected function createPostData()
     {
-        for ($i = 0; $i < 200000; $i++) {
+        for ($i = 0; $i < CreatePosts::POST_COUNT; $i++) {
 
             $this->post[] = [
-                'login' => $this->authors[rand(0, 99)],
+                'login' => $this->users->random()->login,
                 'title' => $this->generateString(20),
                 'content' => $this->generateString(250),
                 'author_ip' => $this->listIp[rand(0, 49)]
@@ -135,7 +136,6 @@ class CreatePosts extends Command
      */
     protected function build()
     {
-        $this->createAuthors();
         $this->generateIp();
         $this->createPostData();
 
