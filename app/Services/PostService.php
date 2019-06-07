@@ -114,16 +114,10 @@ class PostService
                 'author_ip' => $request->author_ip
             ]);
 
-            return [
-                $post,
-                $this->code->ok
-            ];
+            return [$post, $this->code->ok];
         }
         catch (\Exception $exception) {
-            return [
-                $exception,
-                $this->code->unprocessableEntity
-            ];
+            return [$exception, $this->code->unprocessableEntity];
         }
     }
 

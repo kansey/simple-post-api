@@ -3,6 +3,7 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
+use App\Repositories\PostRepository;
 
 /**
  * Class QueryCacheService
@@ -10,7 +11,6 @@ use Illuminate\Support\Facades\Cache;
  */
 class QueryCacheService
 {
-
     /**
      * Time life element in cache
      */
@@ -22,25 +22,26 @@ class QueryCacheService
     const IP_KEY = 'ipList';
 
     /**
-     * @return mixed
+     * @var PostRepository $postRepository
      */
-    public function getIp()
+    protected $postRepository;
+
+    /**
+     * QueryCacheService constructor.
+     * @param PostRepository $postRepository
+     */
+    public function __construct(PostRepository $postRepository)
     {
-        return $this->getCacheIp();
+        $this->postRepository = $postRepository;
     }
 
     /**
      * @return mixed
      */
-    private function getCacheIp()
+    public function getIp()
     {
-        return $value =Cache::remember(QueryCacheService::IP_KEY, QueryCacheService::TTL, function() {
-            return DB::select('SELECT author_ip, string_agg(DISTINCT(users.login), \',\') as author_logins
-                FROM post main
-                INNER JOIN users on users.id = main.user_id
-                GROUP BY author_ip
-                HAVING count(user_id) > 1'
-            );
+        return $value = Cache::remember(QueryCacheService::IP_KEY, QueryCacheService::TTL, function() {
+            return $this->postRepository->getIpList();
         });
     }
 }
