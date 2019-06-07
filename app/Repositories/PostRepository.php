@@ -43,10 +43,10 @@ class PostRepository
     public function getIpList()
     {
         return DB::select('SELECT author_ip, string_agg(DISTINCT(users.login), \',\') as author_logins
-                FROM post main
-                INNER JOIN users on users.id = main.user_id
-                GROUP BY author_ip
-                HAVING count(user_id) >= 1'
+            FROM post main
+            INNER JOIN users on users.id = main.user_id
+            GROUP BY author_ip
+            HAVING count(user_id) >= 1'
         );
     }
 }

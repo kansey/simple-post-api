@@ -8,6 +8,7 @@ use App\Http\Requests\RatingRequest;
 use App\Http\Response\ResponseCode;
 use App\Rating;
 use App\Repositories\PostRepository;
+use App\Repositories\RatingRepository;
 use App\Repositories\UserRepository;
 use App\User;
 use Illuminate\Http\Request;
@@ -56,9 +57,9 @@ class PostService
     /**
      * @var Rating $rating
      */
-    protected $rating;
+    protected $ratingRepository;
 
-    /***
+    /**
      * PostService constructor.
      * @param PostRepository $postRepository
      * @param PostRequest $postRequest
@@ -67,7 +68,7 @@ class PostService
      * @param UserRepository $userRepository
      * @param ResponseCode $code
      * @param QueryCacheService $cacheService
-     * @param Rating $rating
+     * @param RatingRepository $ratingRepository
      */
     public function __construct(
         PostRepository $postRepository,
@@ -77,7 +78,7 @@ class PostService
         UserRepository $userRepository,
         ResponseCode $code,
         QueryCacheService $cacheService,
-        Rating $rating
+        RatingRepository $ratingRepository
     ) {
         $this->postRepository = $postRepository;
         $this->postRequest = $postRequest;
@@ -86,7 +87,7 @@ class PostService
         $this->userRepository = $userRepository;
         $this->code = $code;
         $this->queryCache = $cacheService;
-        $this->rating = $rating;
+        $this->ratingRepository = $ratingRepository;
     }
 
     /**
@@ -149,29 +150,25 @@ class PostService
         $validate = $this->ratingRequest->validate($request);
 
         if ($validate->fails()) {
-            return [
-                $validate->errors()->all(),
-                $this->code->unprocessableEntity
-            ];
+            return [$validate->errors()->all(), $this->code->unprocessableEntity];
         }
 
         try {
-            $this->rating->saveRating($request);
-        } catch (\Throwable $e) {
-            return [
+            $this->ratingRepository->saveRating($request);
+
+            $rating = $this->ratingRepository->getPostRating($request);
+
+            return isset($rating) && isset($rating->rating)
+            ? [
+                ['average' => $rating->rating],
+                $this->code->ok
+            ] : [
                 RatingRequest::MESSAGE,
                 $this->code->unprocessableEntity
             ];
+
+        } catch (\Throwable $e) {
+            return [RatingRequest::MESSAGE, $this->code->unprocessableEntity];
         }
-
-        $rating = $this->rating->getPostRating($request->post_id);
-
-        return isset($rating) && isset($rating->rating) ? [
-            ['average' => $rating->rating],
-            $this->code->ok
-        ] : [
-            RatingRequest::MESSAGE,
-            $this->code->unprocessableEntity
-        ];
     }
 }
