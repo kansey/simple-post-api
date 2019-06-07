@@ -30,7 +30,7 @@ class LoginRequest implements RequestApiInterface
     public function rules()
     {
         return [
-            'login' => 'required||string|min:5|max:20'
+            'login' => 'required||string|min:5|max:50'
         ];
     }
 
