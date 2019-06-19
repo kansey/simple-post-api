@@ -44,7 +44,7 @@ class RatingRepository
      * @param Request $request
      * @return mixed
      */
-    public function getPostRating(Request $request)
+    public function findRatingByPostId(Request $request)
     {
         return DB::selectOne('select  to_char(AVG (rating), \'9.9\') AS rating 
             from rating where post_id = :post_id', ['post_id' => $request->post_id]

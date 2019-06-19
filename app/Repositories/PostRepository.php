@@ -49,4 +49,16 @@ class PostRepository
             HAVING count(user_id) >= 1'
         );
     }
+
+    /**
+     * @param $limit
+     * @return mixed
+     */
+    public function findPostByLimitWithRating($limit = 10)
+    {
+        return DB::select('Select post.id, post.title, post.content, 
+            to_char(AVG (rating.rating), \'9.9\') AS rating  from post 
+            LEFT JOIN rating on rating.post_id = post.id GROUP BY post.id order by rating DESC LIMIT :limit',
+            ['limit' => $limit]);
+    }
 }

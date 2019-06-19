@@ -8,6 +8,7 @@ use App\Http\Requests\RatingRequest;
 use App\Http\Response\ResponseCode;
 use App\Rating;
 use App\Repositories\PostRepository;
+use App\Http\Requests\PostsRequest;
 use App\Repositories\RatingRepository;
 use App\Repositories\UserRepository;
 use App\User;
@@ -59,6 +60,8 @@ class PostService
      */
     protected $ratingRepository;
 
+    protected $postsRequest;
+
     /**
      * PostService constructor.
      * @param PostRepository $postRepository
@@ -69,6 +72,7 @@ class PostService
      * @param ResponseCode $code
      * @param QueryCacheService $cacheService
      * @param RatingRepository $ratingRepository
+     * @param PostsRequest $postsRequest
      */
     public function __construct(
         PostRepository $postRepository,
@@ -78,7 +82,8 @@ class PostService
         UserRepository $userRepository,
         ResponseCode $code,
         QueryCacheService $cacheService,
-        RatingRepository $ratingRepository
+        RatingRepository $ratingRepository,
+        PostsRequest $postsRequest
     ) {
         $this->postRepository = $postRepository;
         $this->postRequest = $postRequest;
@@ -88,6 +93,7 @@ class PostService
         $this->code = $code;
         $this->queryCache = $cacheService;
         $this->ratingRepository = $ratingRepository;
+        $this->postsRequest = $postsRequest;
     }
 
     /**
@@ -156,7 +162,7 @@ class PostService
         try {
             $this->ratingRepository->saveRating($request);
 
-            $rating = $this->ratingRepository->getPostRating($request);
+            $rating = $this->ratingRepository->findRatingByPostId($request);
 
             return isset($rating) && isset($rating->rating)
             ? [
@@ -166,6 +172,32 @@ class PostService
                 RatingRequest::MESSAGE,
                 $this->code->unprocessableEntity
             ];
+
+        } catch (\Throwable $e) {
+            return [RatingRequest::MESSAGE, $this->code->unprocessableEntity];
+        }
+    }
+
+    /**
+     * @param Request $request
+     * @return array
+     */
+    public function posts(Request $request)
+    {
+        $validate = $this->postsRequest->validate($request);
+
+        if ($validate->fails()) {
+            return [$validate->errors()->all(), $this->code->unprocessableEntity];
+        }
+
+        try {
+            $posts = $this->postRepository->findPostByLimitWithRating($request->post);
+            $posts = collect($posts);
+            $posts = $posts->map(function ($item, $key) {
+                return ['title' => $item->title, 'content' => $item->content];
+            });
+
+            return [$posts->toArray(), $this->code->ok];
 
         } catch (\Throwable $e) {
             return [RatingRequest::MESSAGE, $this->code->unprocessableEntity];

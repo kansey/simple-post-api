@@ -60,4 +60,15 @@ class PostController extends Controller
 
         return response()->json($response, $code);
     }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function posts(Request $request)
+    {
+        list($response, $code) = $this->postService->posts($request);
+
+        return response()->json($response, $code);
+    }
 }

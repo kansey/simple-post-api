@@ -21,3 +21,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::middleware('api')->post('/create', 'API\PostController@create');
 Route::middleware('api')->get('/ip', 'API\PostController@ip');
 Route::middleware('api')->post('/rating', 'API\PostController@rating');
+Route::middleware('api')->post('/posts', 'API\PostController@posts');
